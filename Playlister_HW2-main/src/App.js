@@ -7,9 +7,11 @@ import jsTPS from './common/jsTPS.js';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
+import DeleteSong_Transaction from './transactions/DeleteSong_Transaction.js';
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.js';
+import DeleteSongModal from './components/DeleteSongModal.js';
 
 // THESE REACT COMPONENTS ARE IN OUR UI
 import Banner from './components/Banner.js';
@@ -230,9 +232,32 @@ class App extends React.Component {
         }
         this.setStateWithUpdatedList(list);
     }
+    deleteSong = (list, index) => {
+        this.setState(prevState => ({
+            markedSongList : null,
+            songIndexMarkedForDeletion: null,
+            currentList: prevState.currentList,
+            sessionData : prevState.sessionData
+        }), () => {
+            list.songs.splice(index, 1);
+            this.setStateWithUpdatedList(list);
+        });
+    }
+    addSong = (song, list, index) => {
+        list.songs.splice(index, 0, song);
+        this.setStateWithUpdatedList(list);
+    }
+    deleteMarkedSong = () => {
+        this.addDeleteSongTransaction(this.state.markedSongList, this.state.songIndexMarkedForDeletion);
+        this.hideDeleteSongModal();
+    }
     // THIS FUNCTION ADDS A MoveSong_Transaction TO THE TRANSACTION STACK
     addMoveSongTransaction = (start, end) => {
         let transaction = new MoveSong_Transaction(this, start, end);
+        this.tps.addTransaction(transaction);
+    }
+    addDeleteSongTransaction = (list, songIndex) => {
+        let transaction = new DeleteSong_Transaction(this, list, songIndex);
         this.tps.addTransaction(transaction);
     }
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
@@ -263,6 +288,17 @@ class App extends React.Component {
             this.showDeleteListModal();
         });
     }
+    markSongForDeletion = (index) => {
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            markedSongList: prevState.currentList,
+            songIndexMarkedForDeletion : index,
+            sessionData: prevState.sessionData
+        }), () => {
+            // PROMPT THE USER
+            this.showDeleteSongModal();
+        });
+    }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
     showDeleteListModal() {
@@ -272,6 +308,14 @@ class App extends React.Component {
     // THIS FUNCTION IS FOR HIDING THE MODAL
     hideDeleteListModal() {
         let modal = document.getElementById("delete-list-modal");
+        modal.classList.remove("is-visible");
+    }
+    showDeleteSongModal() {
+        let modal = document.getElementById("delete-song-modal");
+        modal.classList.add("is-visible");
+    }
+    hideDeleteSongModal() {
+        let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
     }
     render() {
@@ -303,13 +347,20 @@ class App extends React.Component {
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
-                    moveSongCallback={this.addMoveSongTransaction} />
+                    moveSongCallback={this.addMoveSongTransaction}
+                    deleteSongCallback = {this.markSongForDeletion} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteListModal
                     listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     deleteListCallback={this.deleteMarkedList}
+                />
+                <DeleteSongModal
+                    list={this.state.markedSongList}
+                    songIndex={this.state.songIndexMarkedForDeletion}
+                    hideDeleteSongModalCallback={this.hideDeleteSongModal}
+                    deleteSongCallback={this.deleteMarkedSong}
                 />
             </div>
         );
