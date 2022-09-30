@@ -223,6 +223,12 @@ input {
   font-size: 48pt;
 }
 
+.edit-song-modal-center {
+  font-size: 30pt;
+  width: 600px;
+  height: 200px;
+}
+
 span {
   font-weight: bold;
   font-style: italic;

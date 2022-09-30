@@ -12,7 +12,7 @@ export default class DeleteSongModal extends Component {
                 class="modal" 
                 id="delete-song-modal" 
                 data-animation="slideInOutLeft">
-                    <div class="modal-root" id='verify-delete-list-root'>
+                    <div class="modal-root" id='verify-delete-song-root'>
                         <div class="modal-north">
                             Remove song?
                         </div>
