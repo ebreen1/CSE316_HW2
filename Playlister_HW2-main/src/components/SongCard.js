@@ -69,10 +69,14 @@ export default class SongCard extends React.Component {
     }
 
     render() {
-        const { song } = this.props;
+        let { song } = this.props;
+        if(!song){
+            song = {title: "",
+                    artist: "",
+                    youTubeId: ""};
+        }
         let num = this.getItemNum();
         console.log("num: " + num);
-        console.log("Song: " + song);
         let itemClass = "playlister-song";
         if (this.state.draggedTo) {
             itemClass = "playlister-song-dragged-to";
